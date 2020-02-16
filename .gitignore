@@ -1,2 +1,9 @@
 # Google App Engine generated folder
 appengine-generated/
+.idea
+.idea/.gitignore
+.idea/codeStyles/
+.idea/elrond-build.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
