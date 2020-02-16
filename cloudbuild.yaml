@@ -5,13 +5,13 @@ steps:
     args: ['clone', 'https://github.com/ElrondNetwork/elrond-deploy-go.git']
   # Build the container image for the node
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/node', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/node', './Node/Dockerfile']
   # Push the container image node to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/node']
   # Build the container image for the seednode
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/seednode', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/seednode', './Seednode/Dockerfile']
   # Push the container image seednode to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/seednode']
