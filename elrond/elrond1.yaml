@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: seednode
+  labels:
+    app: seednode
+spec:
+  selector:
+    app: seednode
+  ports:
+    - protocol: TCP
+      port: 41269
+      name: el1
+    - port: 10000
+      name: el2
+      protocol: TCP
+    - port: 9944
+      name: el3
+      protocol: TCP
+  clusterIP: 10.113.0.30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elrond-node
+  namespace: elrond
+  labels:
+    app: elrond-node
+spec:
+  selector:
+    app: elrond-node
+  ports:
+    - port: 41269
+      name: el1
+      protocol: TCP
+    - port: 8080
+      name: el2
+      protocol: TCP
+    - port: 8732
+      name: el3
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: seednode
+  namespace: elrond
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seednode
+  serviceName: seednode
+  template:
+    metadata:
+      labels:
+        app: seednode
+    spec:
+      containers:
+        - image: gcr.io/elrond-testnets/seednode
+          imagePullPolicy: Always
+          name: seednode
+          ports:
+            - containerPort: 41269
+              name: el1
+              protocol: TCP
+            - containerPort: 10000
+              name: el2
+              protocol: TCP
+            - containerPort: 8732
+              name: el3
+              protocol: TCP
+      #hostname: seednode
+      restartPolicy: Always
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elrond-node
+  namespace: elrond
+spec:
+  podManagementPolicy: Parallel
+  replicas: 52
+  selector:
+    matchLabels:
+      app: elrond
+  serviceName: elrond
+  template:
+    metadata:
+      labels:
+        app: elrond
+    spec:
+      containers:
+        - image: gcr.io/elrond-testnets/elrondnode
+          imagePullPolicy: Always
+          name: elrond-node
+          ports:
+            - containerPort: 41269
+              name: el1
+              protocol: TCP
+            - containerPort: 8080
+              name: el2
+              protocol: TCP
+            - containerPort: 8732
+              name: el3
+              protocol: TCP
+      hostname: elrond
+      restartPolicy: Always
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: web-allow-external
+  namespace: elrond
+spec:
+  podSelector:
+    matchLabels:
+      app: elrond
+  ingress:
+    - {}
+  egress:
+    - {}
